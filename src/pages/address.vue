@@ -66,11 +66,11 @@
                     <div class="addr-list-wrap">
                         <div class="addr-list">
                             <ul>
-                                <li  class="check">
+                                <li  class="check" v-for="item in addressFilter" v-bind:key="item.addressId">
                                     <dl>
-                                        <dt>河畔一角</dt>
-                                        <dd class="address">北京市昌平区</dd>
-                                        <dd class="tel">17600000000</dd>
+                                        <dt>{{item.userName}}</dt>
+                                        <dd class="address">{{item.streetName}}</dd>
+                                        <dd class="tel">{{item.tel}}</dd>
                                     </dl>
                                     <div class="addr-opration addr-del">
                                         <!-- 删除地址 -->
@@ -100,7 +100,7 @@
                         </div>
 
                         <div class="shipping-addr-more">
-                            <a class="addr-more-btn up-down-btn open" href="javascript:;">
+                            <a class="addr-more-btn up-down-btn" :class="{'open': limit>3}" href="javascript:;" @click="expand">
                                 查看更多
                                 <i class="i-up-down">
                                     <i class="i-up-down-l"></i>
@@ -142,12 +142,42 @@
     import NavFooter from "../components/Footer";
     export default {
         name: "addr",
-        data(){
-
+        data() {
+            return{
+                limit: 3,
+                addressList:[]
+            }
         },
         components:{
             NavHeader,
             NavFooter
+        },
+        computed:{
+            //监视某个变量是否发生改变
+            //slice分割，返回的也是数组
+            addressFilter(){
+                return this.addressList.slice(0,this.limit);
+            }
+
+        },
+        mounted() {
+            //mounted表示整个页面渲染以后，一切准备就绪后执行的方法
+            this.init();
+        },
+        methods:{
+            init(){
+                this.axios.get('/mock/address.json').then((response)=>{
+                    let res = response.data;
+                    this.addressList = res.data;
+                })
+            },
+            expand(){
+                if(this.limit == 3){
+                    this.limit = this.addressList.length;
+                }else{
+                    this.limit = 3;
+                }
+            }
         }
     }
 </script>
